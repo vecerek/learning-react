@@ -13,34 +13,31 @@ function Square(props) {
 class Board extends React.Component {
   renderSquare(i) {
     return <Square 
+             key={"col-" + i}
              value={this.props.squares[i]}
              onClick={() => this.props.onClick(i)}
            />;
   }
 
-  render() {
-    const board = [0, 1, 2].map((i) => {
-      return (
-        <div className="board-row" key={"row-" + i}>
-          {
-            [0, 1, 2].map((j) => {
-              let val = i*3 + j;
-              return (
-                <Square 
-                  key={"col-" + val}
-                  value={this.props.squares[val]}
-                  onClick={() => this.props.onClick(val)}
-                />
-              );
-            })
-          }
-        </div>
-      );
-    });
+  renderRow(i) {
+    return <div className="board-row" key={"row-" + i}>
+             {
+               [0, 1, 2].map((j) => {
+                 let val = i*3 + j;
+                 return (this.renderSquare(val));
+               })
+             }
+           </div>
+  }
 
+  render() {
     return (
       <div>
-        {board}
+        {
+          [0, 1, 2].map((i) => {
+            return (this.renderRow(i));
+          })
+        }
       </div>
     );
   }
@@ -70,6 +67,7 @@ class Game extends React.Component {
       history: history.concat([
         {
           squares: squares,
+          markedField: `(${~~(i / 3) + 1}, ${i % 3 + 1})`,
         }
       ]),
       stepNumber: history.length,
@@ -91,7 +89,7 @@ class Game extends React.Component {
 
     const moves = history.map((step, move) => {
       const desc = move ?
-        "Go to move #" + move :
+        `Go to move #${move}, location: ${step.markedField}` :
         "Go to game start";
       return (
         <li key={move}>
