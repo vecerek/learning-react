@@ -2,6 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 
+function HistoryToggle(props) {
+  return (
+    <button asc={props.asc} onClick={props.onClick}>
+      {props.value}
+    </button>
+  )
+}
+
 function Square(props) {
   return (
     <button className={`square${props.winner ? ' winner':''}`} onClick={props.onClick}>
@@ -51,6 +59,7 @@ class Game extends React.Component {
       history: [{
         squares: Array(9).fill(null),
       }],
+      historyAsc: true,
       stepNumber: 0,
       xIsNext: true
     };
@@ -104,13 +113,19 @@ class Game extends React.Component {
     });
   }
 
+  handleHistoryOrder() {
+    this.setState({
+      historyAsc: !this.state.historyAsc
+    })
+  }
+
   render() {
-    const history = this.state.history;
+    let history = this.state.history;
     const current = history[this.state.stepNumber];
     const winnerSquares = this.calculateWinner(current.squares);
     const winner = winnerSquares == null ? null : winnerSquares.pop();
 
-    const moves = history.map((step, move) => {
+    let moves = history.map((step, move) => {
       const desc = move ?
         `Go to move #${move}, location: ${step.markedField}` :
         "Go to game start";
@@ -125,6 +140,10 @@ class Game extends React.Component {
         </li>
       );
     });
+
+    if (!this.state.historyAsc) {
+      moves = moves.reverse();
+    }
 
     let status;
     if (winner) {
@@ -144,6 +163,14 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <div>
+            Change order: 
+            <HistoryToggle
+              asc={this.state.historyAsc}
+              value={this.state.historyAsc ? '▼' : '▲'}
+              onClick={() => this.handleHistoryOrder()}
+            />
+          </div>
           <ol>{moves}</ol>
         </div>
       </div>
